@@ -30,17 +30,19 @@ class HoutianBaguaSpiralViz:
         # 构建正交基
         self._build_basis()
         
-        # 九宫定义（简化球坐标）
+        # 九宫定义（修正：地理轴Z=南北极=土轴，离9/坎1在回归线不在极点）
+        # 坐标系：X=东，Y=北，Z=北极（地理轴/土轴）
+        # 北极(0,0,1)=土之极阳（白），南极(0,0,-1)=土之极阴（黑）
         self.bagua = {
-            1: {"name": "坎", "wuxing": "水", "pos": self._spherical_to_cartesian(1.0, np.pi, 0)},
-            2: {"name": "坤", "wuxing": "土", "pos": self._spherical_to_cartesian(0.8, 3*np.pi/4, np.pi/4)},
-            3: {"name": "震", "wuxing": "木", "pos": self._spherical_to_cartesian(1.0, np.pi/2, 0)},
-            4: {"name": "巽", "wuxing": "木", "pos": self._spherical_to_cartesian(0.9, np.pi/3, np.pi/6)},
-            5: {"name": "中", "wuxing": "土", "pos": np.array([0.0, 0.0, 0.0])},
-            6: {"name": "乾", "wuxing": "金", "pos": self._spherical_to_cartesian(0.9, 2*np.pi/3, -np.pi/6)},
-            7: {"name": "兑", "wuxing": "金", "pos": self._spherical_to_cartesian(1.0, np.pi/2, np.pi)},
-            8: {"name": "艮", "wuxing": "土", "pos": self._spherical_to_cartesian(0.8, np.pi/4, -3*np.pi/4)},
-            9: {"name": "离", "wuxing": "火", "pos": self._spherical_to_cartesian(1.0, 0, 0)},
+            1: {"name": "坎", "wuxing": "水", "pos": np.array([0.0, 0.917, -0.399])},    # 南回归线（冬至·水）
+            2: {"name": "坤", "wuxing": "土", "pos": np.array([-0.5, -0.5, -0.5])},      # 西南偏下
+            3: {"name": "震", "wuxing": "木", "pos": np.array([1.0, 0.0, 0.0])},          # 赤道东（春分·木）
+            4: {"name": "巽", "wuxing": "木", "pos": np.array([0.5, -0.5, 0.707])},      # 八卦中轴上端
+            5: {"name": "中", "wuxing": "土", "pos": np.array([0.0, 0.0, 0.0])},          # 球心
+            6: {"name": "乾", "wuxing": "金", "pos": np.array([-0.5, 0.5, -0.707])},     # 八卦中轴下端
+            7: {"name": "兑", "wuxing": "金", "pos": np.array([-1.0, 0.0, 0.0])},         # 赤道西（秋分·金）
+            8: {"name": "艮", "wuxing": "土", "pos": np.array([0.5, 0.5, 0.5])},          # 东北偏上
+            9: {"name": "离", "wuxing": "火", "pos": np.array([0.0, -0.917, 0.399])},    # 北回归线（夏至·火）
         }
     
     def _build_basis(self):
@@ -138,13 +140,21 @@ class HoutianBaguaSpiralViz:
         ax.plot_surface(x_s, y_s, z_s, alpha=0.08, color='lightgray', 
                        rstride=2, cstride=2, linewidth=0)
         
-        # 绘制中轴
+        # 绘制八卦中轴（倾斜）
         axis_start = -1.2 * self.axis_dir
         axis_end = 1.2 * self.axis_dir
         ax.plot3D([axis_start[0], axis_end[0]], 
                  [axis_start[1], axis_end[1]], 
                  [axis_start[2], axis_end[2]], 
-                 'k--', linewidth=1.5, alpha=0.5, label='中轴(巽4→中5→乾6)')
+                 'k--', linewidth=1.5, alpha=0.5, label='八卦中轴(巽4→中5→乾6)')
+        
+        # 绘制地理轴（土轴/南北极，固定竖直Z轴）
+        ax.plot3D([0, 0], [0, 0], [-1.3, 1.3], 
+                 'g-', linewidth=2, alpha=0.6, label='地理轴(南极←土→北极)')
+        ax.scatter([0], [0], [1.3], c='white', s=200, marker='^', edgecolors='gray', linewidths=2, zorder=6)
+        ax.scatter([0], [0], [-1.3], c='black', s=200, marker='v', edgecolors='gray', linewidths=2, zorder=6)
+        ax.text(0.1, 0, 1.35, '北极(土之极阳·白)', fontsize=9, color='gray')
+        ax.text(0.1, 0, -1.4, '南极(土之极阴·黑)', fontsize=9, color='gray')
         
         # 标记九宫位置
         colors_wuxing = {
