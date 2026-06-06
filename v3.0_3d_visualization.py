@@ -30,19 +30,19 @@ class HoutianBaguaSpiralViz:
         # 构建正交基
         self._build_basis()
         
-        # 九宫定义（修正：地理轴Z=南北极=土轴，离9/坎1在回归线不在极点）
-        # 坐标系：X=东，Y=北，Z=北极（地理轴/土轴）
-        # 北极(0,0,1)=土之极阳（白），南极(0,0,-1)=土之极阴（黑）
+        # 九宫定义（单轴模型：中轴=Z轴=南北极=土轴）
+        # 坐标系：X=东，Y=北，Z=北极（巽4/中轴上端/土之极阳）
+        # 巽4(0,0,1)=北极=土之极阳（白），乾6(0,0,-1)=南极=土之极阴（黑）
         self.bagua = {
-            1: {"name": "坎", "wuxing": "水", "pos": np.array([0.0, 0.917, -0.399])},    # 南回归线（冬至·水）
+            1: {"name": "坎", "wuxing": "水", "pos": np.array([0.0, -0.399, -0.917])},    # 南回归线（冬至·水）
             2: {"name": "坤", "wuxing": "土", "pos": np.array([-0.5, -0.5, -0.5])},      # 西南偏下
             3: {"name": "震", "wuxing": "木", "pos": np.array([1.0, 0.0, 0.0])},          # 赤道东（春分·木）
-            4: {"name": "巽", "wuxing": "木", "pos": np.array([0.5, -0.5, 0.707])},      # 八卦中轴上端
+            4: {"name": "巽", "wuxing": "木", "pos": np.array([0.0, 0.0, 1.0])},          # 北极（中轴上端·土之极阳）
             5: {"name": "中", "wuxing": "土", "pos": np.array([0.0, 0.0, 0.0])},          # 球心
-            6: {"name": "乾", "wuxing": "金", "pos": np.array([-0.5, 0.5, -0.707])},     # 八卦中轴下端
+            6: {"name": "乾", "wuxing": "金", "pos": np.array([0.0, 0.0, -1.0])},         # 南极（中轴下端·土之极阴）
             7: {"name": "兑", "wuxing": "金", "pos": np.array([-1.0, 0.0, 0.0])},         # 赤道西（秋分·金）
             8: {"name": "艮", "wuxing": "土", "pos": np.array([0.5, 0.5, 0.5])},          # 东北偏上
-            9: {"name": "离", "wuxing": "火", "pos": np.array([0.0, -0.917, 0.399])},    # 北回归线（夏至·火）
+            9: {"name": "离", "wuxing": "火", "pos": np.array([0.0, 0.399, 0.917])},     # 北回归线（夏至·火）
         }
     
     def _build_basis(self):
@@ -140,21 +140,13 @@ class HoutianBaguaSpiralViz:
         ax.plot_surface(x_s, y_s, z_s, alpha=0.08, color='lightgray', 
                        rstride=2, cstride=2, linewidth=0)
         
-        # 绘制八卦中轴（倾斜）
-        axis_start = -1.2 * self.axis_dir
-        axis_end = 1.2 * self.axis_dir
-        ax.plot3D([axis_start[0], axis_end[0]], 
-                 [axis_start[1], axis_end[1]], 
-                 [axis_start[2], axis_end[2]], 
-                 'k--', linewidth=1.5, alpha=0.5, label='八卦中轴(巽4→中5→乾6)')
-        
-        # 绘制地理轴（土轴/南北极，固定竖直Z轴）
+        # 绘制中轴（Z轴 = 南北极轴 = 巽4→中5→乾6）
         ax.plot3D([0, 0], [0, 0], [-1.3, 1.3], 
-                 'g-', linewidth=2, alpha=0.6, label='地理轴(南极←土→北极)')
+                 'k--', linewidth=2, alpha=0.6, label='中轴(巽4→中5→乾6)=南北极轴')
         ax.scatter([0], [0], [1.3], c='white', s=200, marker='^', edgecolors='gray', linewidths=2, zorder=6)
         ax.scatter([0], [0], [-1.3], c='black', s=200, marker='v', edgecolors='gray', linewidths=2, zorder=6)
-        ax.text(0.1, 0, 1.35, '北极(土之极阳·白)', fontsize=9, color='gray')
-        ax.text(0.1, 0, -1.4, '南极(土之极阴·黑)', fontsize=9, color='gray')
+        ax.text(0.1, 0, 1.35, '巽4·北极(土之极阳·白)', fontsize=9, color='gray')
+        ax.text(0.1, 0, -1.4, '乾6·南极(土之极阴·黑)', fontsize=9, color='gray')
         
         # 标记九宫位置
         colors_wuxing = {
