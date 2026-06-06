@@ -157,7 +157,7 @@ COVER_PAGE = """
     <h1>八字色彩球体理论</h1>
     <div class="meta">
         <p><strong>核心文档存证版</strong></p>
-        <p>理论创始人：梓涵</p>
+        <p>理论创始人：许梓涵（笔名：梓涵）</p>
         <p>协作团队：行知阁</p>
         <p>归档时间：{timestamp}</p>
         <p>文档版本：v3.0</p>
@@ -190,7 +190,7 @@ HTML_FOOTER = """
 <hr>
 <div style="text-align: center; font-size: 10pt; color: #888; margin-top: 3em; padding: 2em; background: #fafafa;">
     <p><strong>八字色彩球体理论 · 核心文档存证版</strong></p>
-    <p>理论创始人：梓涵 | 协作团队：行知阁</p>
+    <p>理论创始人：许梓涵（笔名：梓涵） | 协作团队：行知阁</p>
     <p>生成时间：{timestamp}</p>
     <p>本文档仅供学术研究与原创存证使用</p>
 </div>
