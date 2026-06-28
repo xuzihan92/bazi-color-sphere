@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字色彩报告 · 梓涵 · 宋式版</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg: #f5efe6;
+  --bg-card: rgba(255,255,248,0.7);
+  --bg-card-hover: rgba(240,232,220,0.8);
+  --bg-elevated: rgba(230,220,208,0.6);
+  --text-primary: #2c2416;
+  --text-secondary: #6a5a4a;
+  --text-muted: #a09080;
+  --border: #d4c8b8;
+  --border-subtle: #e0d6c8;
+  --accent: #7C202F;
+  --accent-glow: rgba(124,32,47,0.15);
+  --wuxing-wood: #5B8C7A;
+  --wuxing-fire: #E84A6F;
+  --wuxing-earth: #B08040;
+  --wuxing-metal: #B0B8C0;
+  --wuxing-water: #4A5A8A;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-card: 0 1px 6px rgba(0,0,0,0.06);
+  --shadow-elevated: 0 3px 16px rgba(0,0,0,0.08);
+  --font-serif: 'Noto Serif SC', 'SimSun', '宋体', serif;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --font-mono: 'Noto Sans SC', 'Consolas', monospace;
+  --transition: 200ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(210,190,160,0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 30%, rgba(180,200,200,0.08) 0%, transparent 50%);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
+
+/* ─── 页首 ─── */
+.page-header {
+  text-align: center;
+  padding: 48px 0 30px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+  position: relative;
+}
+.page-header::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 1.5px;
+  background: #8b7355;
+  margin: 24px auto 0;
+  opacity: 0.4;
+}
+.page-header h1 { font-size: 2rem; font-weight: 900; letter-spacing: 0.08em; color: #1a1410; }
+.page-header .subtitle { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.1em; font-weight: 300; margin-top: 4px; }
+.page-header .engine-badge {
+  display: inline-block; margin-top: 10px; padding: 3px 14px;
+  border-radius: 99px; font-size: 0.72rem; font-family: var(--font-sans);
+  color: var(--accent); background: rgba(207,73,95,0.06);
+  border: 1px solid rgba(207,73,95,0.12); letter-spacing: 0.04em;
+}
+
+/* ─── 章节标题 ─── */
+.section-title {
+  font-size: 1rem; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--text-primary); margin-bottom: 18px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle);
+}
+.section-divider { border: 0; border-top: 1px solid var(--border); margin: 40px 0; }
+
+/* ─── 主色卡 ─── */
+.hero-swatch {
+  display: flex; align-items: center; gap: 36px;
+  padding: 30px 32px;
+  background: var(--bg-card); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); margin-bottom: 40px;
+  box-shadow: var(--shadow-card);
+}
+.swatch-circle {
+  width: 140px; height: 140px;
+  border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 40px var(--accent-glow);
+  transition: background var(--transition);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.swatch-info { flex: 1; }
+.swatch-info h2 { font-size: 1.3rem; margin-bottom: 2px; letter-spacing: 0.04em; }
+.swatch-info .color-name { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; }
+.swatch-params { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.param-card {
+  background: var(--bg-elevated); border-radius: var(--radius-sm);
+  padding: 10px 12px; text-align: center;
+  border: 1px solid var(--border-subtle);
+}
+.param-card .param-label {
+  font-size: 0.65rem; color: var(--text-muted);
+  letter-spacing: 0.05em; margin-bottom: 2px; font-family: var(--font-sans);
+}
+.param-card .param-value {
+  font-size: 0.95rem; font-weight: 600;
+  font-family: var(--font-mono); color: var(--text-primary);
+}
+
+/* ─── 信息网格 ─── */
+.info-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 40px;
+}
+.info-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 18px; text-align: center;
+  box-shadow: var(--shadow-card);
+}
+.info-card .info-label {
+  font-size: 0.7rem; color: var(--text-muted);
+  margin-bottom: 4px; font-family: var(--font-sans); letter-spacing: 0.05em;
+}
+.info-card .info-value { font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; }
+
+/* ─── 四柱 ─── */
+.pillars-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px;
+}
+.pillar-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+  cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+  box-shadow: var(--shadow-card);
+}
+.pillar-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-elevated); }
+.pillar-card.day-master {
+  border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow);
+}
+.pillar-color-bar { height: 60px; transition: background var(--transition); }
+.pillar-body { padding: 14px; text-align: center; }
+.pillar-body .pillar-label { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 2px; font-family: var(--font-sans); }
+.pillar-body .pillar-ganzhi { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+.pillar-body .pillar-wuxing {
+  display: inline-block; padding: 1px 10px; border-radius: 99px;
+  font-size: 0.7rem; font-weight: 500; font-family: var(--font-sans);
+}
+.pillar-body .pillar-stage { font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; }
+.pillar-body .pillar-hex { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); margin-top: 3px; }
+.pillar-detail { display: none; padding: 0 14px 14px; font-size: 0.75rem; color: var(--text-secondary); }
+.pillar-detail table { width: 100%; border-collapse: collapse; }
+.pillar-detail td { padding: 2px 0; }
+.pillar-detail td:first-child { color: var(--text-muted); font-family: var(--font-sans); }
+.pillar-detail td:last-child { text-align: right; font-family: var(--font-mono); }
+.pillar-card.expanded .pillar-detail { display: block; }
+.day-master-badge {
+  position: absolute; top: 6px; right: 6px;
+  font-size: 0.6rem; padding: 1px 8px; border-radius: 99px;
+  background: var(--accent); color: #fff; z-index: 1; font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+}
+.pillar-card { position: relative; }
+
+/* ─── 五行平衡 ─── */
+.wuxing-section {
+  display: flex; gap: 36px; align-items: center; margin-bottom: 40px; flex-wrap: wrap;
+}
+.wuxing-chart { flex-shrink: 0; width: 200px; height: 200px; }
+.wuxing-legend { flex: 1; min-width: 240px; }
+.wuxing-legend-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border-subtle);
+}
+.wuxing-legend-item:last-child { border-bottom: none; }
+.wuxing-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.wuxing-name { font-size: 0.85rem; font-weight: 600; width: 24px; }
+.wuxing-bar-track {
+  flex: 1; height: 5px; background: var(--bg-elevated);
+  border-radius: 3px; overflow: hidden;
+}
+.wuxing-bar-fill { height: 100%; border-radius: 3px; transition: width 600ms ease; }
+.wuxing-pct { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-secondary); width: 44px; text-align: right; }
+
+/* ─── 三态色轴 ─── */
+.state-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px;
+}
+.state-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 20px; text-align: center;
+  box-shadow: var(--shadow-card);
+}
+.state-card .state-label {
+  font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.05em;
+  margin-bottom: 10px; font-family: var(--font-sans);
+}
+.state-color-block {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 10px; box-shadow: 0 0 24px rgba(0,0,0,0.1);
+}
+.state-card .state-hex {
+  font-size: 0.9rem; font-family: var(--font-mono); font-weight: 600; margin-bottom: 2px;
+}
+.state-card .state-desc { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* ─── 大运时间轴 ─── */
+.timeline {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding: 14px 0; margin-bottom: 12px;
+}
+.timeline-dot {
+  flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+  margin: 0 14px; cursor: pointer; border: 2px solid transparent;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  position: relative;
+}
+.timeline-dot:hover { transform: scale(1.15); }
+.timeline-dot.active {
+  border-color: #5a4a3a; box-shadow: 0 0 12px rgba(90,74,58,0.2);
+  transform: scale(1.2);
+}
+.timeline-line { flex-shrink: 0; width: 20px; height: 2px; background: var(--border); }
+.timeline-label {
+  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 0.55rem; color: var(--text-muted); white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.timeline-active-info {
+  text-align: center; padding: 10px; margin-bottom: 40px;
+  font-size: 0.8rem; color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+/* ─── 对比案例 ─── */
+.compare-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px;
+}
+.compare-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card);
+}
+.compare-card-header { padding: 16px 16px 10px; text-align: center; }
+.compare-card-header .compare-name { font-size: 0.95rem; font-weight: 600; }
+.compare-card-header .compare-dm { font-size: 0.72rem; color: var(--text-muted); }
+.compare-swatch {
+  height: 64px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-family: var(--font-mono);
+  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  font-weight: 600;
+}
+.compare-body { padding: 14px 16px 16px; }
+.compare-body .mini-bars { display: flex; flex-direction: column; gap: 5px; }
+.mini-bar-row { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; }
+.mini-bar-row .mini-bar-label { width: 18px; font-weight: 600; font-family: var(--font-sans); }
+.mini-bar-row .mini-bar-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.mini-bar-row .mini-bar-track {
+  flex: 1; height: 4px; background: var(--bg-elevated);
+  border-radius: 2px; overflow: hidden;
+}
+.mini-bar-row .mini-bar-fill { height: 100%; border-radius: 2px; }
+
+/* ─── 技术参数 ─── */
+.tech-footer {
+  background: var(--bg-card); border-radius: var(--radius-md);
+  border: 1px solid var(--border); padding: 20px 24px;
+  box-shadow: var(--shadow-card);
+}
+.tech-footer h3 {
+  font-size: 0.8rem; color: var(--text-secondary);
+  margin-bottom: 14px; letter-spacing: 0.05em; font-family: var(--font-sans);
+}
+.tech-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;
+}
+.tech-item {
+  background: var(--bg-elevated); border-radius: var(--radius-sm);
+  padding: 10px; border: 1px solid var(--border-subtle);
+}
+.tech-item .tech-label {
+  font-size: 0.65rem; color: var(--text-muted);
+  margin-bottom: 3px; font-family: var(--font-sans); letter-spacing: 0.04em;
+}
+.tech-item .tech-value {
+  font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-secondary);
+}
+
+/* ─── 响应式 ─── */
+@media (max-width: 1023px) {
+  .hero-swatch { flex-direction: column; text-align: center; gap: 20px; }
+  .swatch-params { grid-template-columns: repeat(3, 1fr); }
+  .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  .state-cards { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .page-header h1 { font-size: 1.5rem; }
+}
+@media (max-width: 767px) {
+  .container { padding: 20px 14px 40px; }
+  .pillars-grid { grid-template-columns: 1fr 1fr; }
+  .wuxing-section { flex-direction: column; align-items: center; }
+  .swatch-params { grid-template-columns: 1fr 1fr; }
+  .info-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ─── 动画 ─── */
+@keyframes pulse-glow { 0%,100% { box-shadow: 0 0 24px var(--accent-glow); } 50% { box-shadow: 0 0 40px var(--accent-glow); } }
+.hero-swatch .swatch-circle { animation: pulse-glow 3s ease-in-out infinite; }
+.fade-in { animation: fadeIn 400ms ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══ 页首 ═══ -->
+  <header class="page-header fade-in">
+    <h1>八字色彩报告</h1>
+    <p class="subtitle">个人色彩说明书 · 梓涵</p>
+    <span class="engine-badge">WuxingSphere v2.1 · 执中 · 司辰 · 采蓝</span>
+  </header>
+
+  <!-- ═══ 主色卡 ═══ -->
+  <section class="hero-swatch fade-in" id="heroSwatch">
+    <div class="swatch-circle" id="heroCircle" style="background:#7C202F"></div>
+    <div class="swatch-info">
+      <h2>本命基准色</h2>
+      <p class="color-name">深茜红 — 丁火日主，v1.3数据校正后色温骤降至2456K极暖深红</p>
+      <div class="swatch-params">
+        <div class="param-card"><div class="param-label">HEX</div><div class="param-value" id="paramHex">#7C202F</div></div>
+        <div class="param-card"><div class="param-label">H 色相</div><div class="param-value" id="paramH">350°</div></div>
+        <div class="param-card"><div class="param-label">S 饱和度</div><div class="param-value" id="paramS">48.3%</div></div>
+        <div class="param-card"><div class="param-label">L 明度</div><div class="param-value" id="paramL">48%</div></div>
+        <div class="param-card"><div class="param-label">T 色温</div><div class="param-value" id="paramT">2456K</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 基本信息 ═══ -->
+  <section class="info-grid fade-in">
+    <div class="info-card"><div class="info-label">八字</div><div class="info-value">壬申 · 己酉 · 丁未 · 丙午</div></div>
+    <div class="info-card"><div class="info-label">日主</div><div class="info-value">丁火（阴火）</div></div>
+    <div class="info-card"><div class="info-label">当前大运</div><div class="info-value">癸丑</div></div>
+    <div class="info-card"><div class="info-label">引擎版本</div><div class="info-value">WuxingSphere v2.1</div></div>
+  </section>
+
+  <!-- ═══ 四柱 ═══ -->
+  <section>
+    <h3 class="section-title">四柱分项</h3>
+    <div class="pillars-grid fade-in" id="pillarsGrid"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══ 五行平衡 ═══ -->
+  <section>
+    <h3 class="section-title">五行平衡</h3>
+    <div class="wuxing-section fade-in" id="wuxingSection"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══ 三态色轴 ═══ -->
+  <section>
+    <h3 class="section-title">三态色轴</h3>
+    <div class="state-cards fade-in" id="stateCards"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══ 大运时间轴 ═══ -->
+  <section>
+    <h3 class="section-title">大运时间轴</h3>
+    <div class="timeline fade-in" id="timeline"></div>
+    <div class="timeline-active-info" id="timelineInfo"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══ 对比案例 ═══ -->
+  <section>
+    <h3 class="section-title">对比案例</h3>
+    <div class="compare-grid fade-in" id="compareGrid"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══ 技术参数 ═══ -->
+  <footer class="tech-footer fade-in" id="techFooter"></footer>
+</div>
+
+<script>
+// 数据（与原版一致）
+const DATA = {"version":"v2.1","engine":"WuxingSphereV2.1 + ganzhi_sphere_map_v1.2.json","generated_by":"执中","main_case":{"name":"梓涵","bazi":"壬申 · 己酉 · 丁未 · 丙午","day_master":"丁火","birth_color":{"hex":"#7C202F","H":350,"S":0.583,"L":0.48,"T":2456},"pillars":{"year":{"ganzhi":"壬申","gan":"壬","zhi":"申","wuxing":"水","H":270,"S":0.7,"L":0.2,"T":5300,"hex":"#320F56","stage":"长生","wangshuai":"相"},"month":{"ganzhi":"己酉","gan":"己","zhi":"酉","wuxing":"土","H":null,"S":0.5,"L":0.75,"T":6500,"hex":"#C2BCBC","stage":"死","wangshuai":"休"},"day":{"ganzhi":"丁未","gan":"丁","zhi":"未","wuxing":"火","H":8,"S":0.5,"L":0.36,"T":3600,"hex":"#C56252","stage":"冠带","wangshuai":"休"},"hour":{"ganzhi":"丙午","gan":"丙","zhi":"午","wuxing":"火","H":0,"S":0.85,"L":0.5,"T":2600,"hex":"#EB1313","stage":"帝旺","wangshuai":"旺"}},"wuxing_balance":{"木":0.08,"火":0.38,"土":0.25,"金":0.14,"水":0.15},"da_yun":[{"ganzhi":"庚戌","period":"第1运","intensity":0.2,"H":339,"S":0.636,"L":0.55,"T":5100,"hex":"#D54376"},{"ganzhi":"辛亥","period":"第2运","intensity":0.2,"H":340.7,"S":0.566,"L":0.57,"T":5160,"hex":"#CF537B"},{"ganzhi":"壬子","period":"第3运","intensity":0.3,"H":328.7,"S":0.663,"L":0.535,"T":5542,"hex":"#D7398B"},{"ganzhi":"癸丑","period":"第4运","intensity":0.3,"H":327.3,"S":0.663,"L":0.55,"T":5302,"hex":"#D84093"},{"ganzhi":"甲寅","period":"第5运","intensity":0.3,"H":14.6,"S":0.663,"L":0.52,"T":4612,"hex":"#D55A33"},{"ganzhi":"乙卯","period":"第6运","intensity":0.25,"H":6.8,"S":0.65,"L":0.538,"T":4681,"hex":"#D54D3C"},{"ganzhi":"丙辰","period":"第7运","intensity":0.25,"H":352.6,"S":0.562,"L":0.503,"T":4706,"hex":"#C7384A"},{"ganzhi":"丁巳","period":"第8运","intensity":0.25,"H":354.6,"S":0.65,"L":0.538,"T":4256,"hex":"#D53C4A"},{"ganzhi":"戊午","period":"第9运","intensity":0.25,"H":350.2,"S":0.65,"L":0.538,"T":4181,"hex":"#D53C55"},{"ganzhi":"己未","period":"第10运","intensity":0.25,"H":350.2,"S":0.65,"L":0.503,"T":4381,"hex":"#D22D48"}],"current_da_yun":"癸丑"},"compare_cases":[{"name":"强木","day_master":"甲木","birth_color":{"hex":"#16C91D","H":122.4,"S":0.797,"L":0.44,"T":5315},"pillars":{"year":{"ganzhi":"甲寅","gan":"甲","zhi":"寅","wuxing":"木","H":120,"S":0.85,"L":0.45,"T":4700,"hex":"#11D411","stage":"临官","wangshuai":"旺"},"month":{"ganzhi":"乙卯","gan":"乙","zhi":"卯","wuxing":"木","H":128,"S":0.85,"L":0.5,"T":5000,"hex":"#13EB30","stage":"帝旺","wangshuai":"旺"},"day":{"ganzhi":"甲寅","gan":"甲","zhi":"寅","wuxing":"木","H":120,"S":0.85,"L":0.45,"T":4700,"hex":"#11D411","stage":"临官","wangshuai":"旺"},"hour":{"ganzhi":"甲子","gan":"甲","zhi":"子","wuxing":"木","H":120,"S":0.5,"L":0.28,"T":8200,"hex":"#236B23","stage":"沐浴","wangshuai":"休"}},"wuxing_balance":{"木":0.778,"火":0.099,"土":0.033,"金":0,"水":0.09}},{"name":"强水","day_master":"壬水","birth_color":{"hex":"#6223E6","H":259.5,"S":0.797,"L":0.522,"T":7770},"pillars":{"year":{"ganzhi":"壬子","gan":"壬","zhi":"子","wuxing":"水","H":270,"S":0.85,"L":0.5,"T":7800,"hex":"#7F13EB","stage":"帝旺","wangshuai":"旺"},"month":{"ganzhi":"癸亥","gan":"癸","zhi":"亥","wuxing":"水","H":262,"S":0.85,"L":0.45,"T":7500,"hex":"#5811D4","stage":"临官","wangshuai":"旺"},"day":{"ganzhi":"壬子","gan":"壬","zhi":"子","wuxing":"水","H":270,"S":0.85,"L":0.5,"T":7800,"hex":"#7F13EB","stage":"帝旺","wangshuai":"旺"},"hour":{"ganzhi":"庚子","gan":"庚","zhi":"子","wuxing":"金","H":210,"S":0.5,"L":0.75,"T":8200,"hex":"#9FBFDF","stage":"死","wangshuai":"休"}},"wuxing_balance":{"木":0.072,"火":0,"土":0,"金":0.06,"水":0.868}},{"name":"土旺","day_master":"戊土","birth_color":{"hex":"#E51D1D","H":null,"S":0.797,"L":0.507,"T":5890},"pillars":{"year":{"ganzhi":"戊辰","gan":"戊","zhi":"辰","wuxing":"土","H":null,"S":0.85,"L":0.36,"T":5500,"hex":"#605757","stage":"冠带","wangshuai":"旺"},"month":{"ganzhi":"己丑","gan":"己","zhi":"丑","wuxing":"土","H":null,"S":0.85,"L":0.85,"T":7000,"hex":"#DAD6D6","stage":"墓","wangshuai":"旺"},"day":{"ganzhi":"戊辰","gan":"戊","zhi":"辰","wuxing":"土","H":null,"S":0.85,"L":0.36,"T":5500,"hex":"#605757","stage":"冠带","wangshuai":"旺"},"hour":{"ganzhi":"丙辰","gan":"丙","zhi":"辰","wuxing":"火","H":0,"S":0.5,"L":0.36,"T":5100,"hex":"#892D2D","stage":"冠带","wangshuai":"休"}},"wuxing_balance":{"木":0.126,"火":0.06,"土":0.7,"金":0.018,"水":0.096}}],"metadata":{"H_range":"0°-360° (circular)","S_range":"0.15-0.85","L_range":"0.10-0.95","T_range":"2600K-8200K","note":"土天干H=null，不参与色相环"}};
+
+const WX_MAP = {'木':{hex:'#5B8C7A'},'火':{hex:'#E84A6F'},'土':{hex:'#B08040'},'金':{hex:'#B0B8C0'},'水':{hex:'#4A5A8A'}};
+const PILLAR_LABELS = {year:'年柱',month:'月柱',day:'日柱',hour:'时柱'};
+const PILLAR_KEYS = ['year','month','day','hour'];
+
+function wuxingTagClass(wx){ return WX_MAP[wx]?WX_MAP[wx].hex:'#888'; }
+function tempDesc(t){ return t>5500?'偏冷':t<4000?'偏暖':'中性'; }
+function fmtPct(v){return (v*100).toFixed(1)+'%';}
+function fmtS(v){return (v*100).toFixed(1)+'%';}
+function contrastText(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (0.299*r+0.587*g+0.114*b)/255>0.55?'#2c2416':'#f0e8e0';
+}
+
+function renderPillars(){
+  const grid=document.getElementById('pillarsGrid');
+  const pillars=DATA.main_case.pillars;
+  PILLAR_KEYS.forEach(key=>{
+    const p=pillars[key];
+    const isEarth=p.wuxing==='土'||p.H===null;
+    const isDayMaster=key==='day';
+    const card=document.createElement('div');
+    card.className='pillar-card'+(isDayMaster?' day-master':'');
+    let html='';
+    if(isDayMaster) html+='<span class="day-master-badge">日主</span>';
+    const barClass=isEarth?'pillar-color-bar':'pillar-color-bar';
+    const barStyle=isEarth?'background:linear-gradient(135deg,#6a5a4a,#b8a898,#d8d0c8)':`background:${p.hex}`;
+    html+=`<div class="${barClass}" style="${barStyle}"></div>`;
+    html+=`<div class="pillar-body"><div class="pillar-label">${PILLAR_LABELS[key]}</div>`;
+    html+=`<div class="pillar-ganzhi">${p.ganzhi}</div>`;
+    const wxColor=wuxingTagClass(p.wuxing);
+    html+=`<span class="pillar-wuxing" style="background:${wxColor}18;color:${wxColor}">${p.wuxing}</span>`;
+    html+=`<div class="pillar-stage">${p.stage} · ${p.wangshuai}</div>`;
+    html+=`<div class="pillar-hex">${p.hex}</div></div>`;
+    html+=`<div class="pillar-detail"><table>`;
+    if(p.H!==null) html+=`<tr><td>H 色相</td><td>${p.H}°</td></tr>`;
+    else html+=`<tr><td>H 色相</td><td>—（土，不参与色相环）</td></tr>`;
+    html+=`<tr><td>S 饱和度</td><td>${fmtS(p.S)}</td></tr>`;
+    html+=`<tr><td>L 明度</td><td>${fmtS(p.L)}</td></tr>`;
+    html+=`<tr><td>T 色温</td><td>${p.T}K ${tempDesc(p.T)}</td></tr>`;
+    html+=`<tr><td>天干</td><td>${p.gan}</td></tr>`;
+    html+=`<tr><td>地支</td><td>${p.zhi}</td></tr>`;
+    html+=`</table></div>`;
+    card.innerHTML=html;
+    card.addEventListener('click',()=>{
+      const wasExpanded=card.classList.contains('expanded');
+      grid.querySelectorAll('.pillar-card').forEach(c=>c.classList.remove('expanded'));
+      if(!wasExpanded) card.classList.add('expanded');
+    });
+    grid.appendChild(card);
+  });
+}
+
+function renderWuxing(){
+  const section=document.getElementById('wuxingSection');
+  const balance=DATA.main_case.wuxing_balance;
+  const order=['火','土','金','水','木'];
+  const total=Object.values(balance).reduce((a,b)=>a+b,0);
+  let cumulative=-90,paths='';
+  order.forEach(wx=>{
+    const val=balance[wx]; if(val===0)return;
+    const angle=(val/total)*360;
+    const startRad=cumulative*Math.PI/180,endRad=(cumulative+angle)*Math.PI/180;
+    const r1=35,r2=80,cx=100,cy=100;
+    const x1=cx+r1*Math.cos(startRad),y1=cy+r1*Math.sin(startRad);
+    const x2=cx+r2*Math.cos(startRad),y2=cy+r2*Math.sin(startRad);
+    const x3=cx+r2*Math.cos(endRad),y3=cy+r2*Math.sin(endRad);
+    const x4=cx+r1*Math.cos(endRad),y4=cy+r1*Math.sin(endRad);
+    const large=angle>180?1:0;
+    const color=WX_MAP[wx]?WX_MAP[wx].hex:'#888';
+    paths+=`<path d="M${x1},${y1} L${x2},${y2} A${r2},${r2} 0 ${large},1 ${x3},${y3} L${x4},${y4} A${r1},${r1} 0 ${large},0 ${x1},${y1} Z" fill="${color}" opacity="0.82"/>`;
+    cumulative+=angle;
+  });
+  const svg=`<svg viewBox="0 0 200 200" class="wuxing-chart"><circle cx="100" cy="100" r="26" fill="var(--bg-card)"/><text x="100" y="98" text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="700" font-family="serif">五行</text><text x="100" y="113" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="sans-serif">天干+地支藏干</text>${paths}</svg>`;
+  let legend='<div class="wuxing-legend">';
+  order.forEach(wx=>{
+    const val=balance[wx],pct=(val*100).toFixed(1);
+    const color=WX_MAP[wx]?WX_MAP[wx].hex:'#888';
+    const isMax=val===Math.max(...Object.values(balance));
+    legend+=`<div class="wuxing-legend-item"><div class="wuxing-dot" style="background:${color}"></div><span class="wuxing-name" style="color:${color}">${wx}</span><div class="wuxing-bar-track"><div class="wuxing-bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="wuxing-pct" style="${isMax?'color:'+color+';font-weight:700':''}">${pct}%</span></div>`;
+  });
+  legend+='</div>';
+  section.innerHTML=svg+legend;
+}
+
+function renderStateAxis(){
+  const c=document.getElementById('stateCards');
+  const bc=DATA.main_case.birth_color;
+  const currentDy=DATA.main_case.da_yun.find(d=>d.ganzhi===DATA.main_case.current_da_yun);
+  const yearPillar=DATA.main_case.pillars.year;
+  const states=[
+    {label:'原局色 · 本命',hex:bc.hex,hsl:`H=${bc.H}° S=${fmtS(bc.S)} L=${fmtS(bc.L)}`,desc:'日常主色，占穿搭面积 50-60%',title:'暖玫红'},
+    {label:'大运色 · 当前',hex:currentDy?currentDy.hex:'#D84093',hsl:currentDy?`H=${currentDy.H}° S=${fmtS(currentDy.S)} L=${fmtS(currentDy.L)}`:'—',desc:'当前10年辅助色，占 20-30%',title:'玫粉紫'},
+    {label:'目标色 · 补益',hex:yearPillar.hex,hsl:`H=${yearPillar.H}° S=${fmtS(yearPillar.S)} L=${fmtS(yearPillar.L)}`,desc:'水元素补益色，点睛用 10-15%',title:'深蓝紫'}
+  ];
+  states.forEach(s=>{
+    const card=document.createElement('div');card.className='state-card';
+    card.innerHTML=`<div class="state-label">${s.label}</div><div class="state-color-block" style="background:${s.hex}"></div><div class="state-hex">${s.hex}</div><div style="font-size:0.7rem;font-family:var(--font-sans);color:var(--text-muted);margin-bottom:3px">${s.title}</div><div class="state-desc">${s.desc}</div>`;
+    c.appendChild(card);
+  });
+}
+
+function renderTimeline(){
+  const container=document.getElementById('timeline');
+  const info=document.getElementById('timelineInfo');
+  const daYun=DATA.main_case.da_yun;
+  const current=DATA.main_case.current_da_yun;
+  const bc=DATA.main_case.birth_color;
+  daYun.forEach((dy,i)=>{
+    const dot=document.createElement('div');
+    dot.className='timeline-dot'+(dy.ganzhi===current?' active':'');
+    dot.style.background=dy.hex;
+    dot.innerHTML=`<span class="timeline-label">${dy.ganzhi}</span>`;
+    dot.addEventListener('click',()=>{
+      container.querySelectorAll('.timeline-dot').forEach(d=>d.classList.remove('active'));
+      dot.classList.add('active');
+      document.getElementById('heroCircle').style.background=dy.hex;
+      document.getElementById('paramHex').textContent=dy.hex;
+      document.getElementById('paramH').textContent=dy.H+'°';
+      document.getElementById('paramS').textContent=fmtS(dy.S);
+      document.getElementById('paramL').textContent=fmtS(dy.L);
+      document.getElementById('paramT').textContent=dy.T+'K';
+      const deltaT=dy.T-bc.T;
+      info.innerHTML=`<strong>${dy.period} · ${dy.ganzhi}</strong> &nbsp; <span style="font-family:var(--font-mono)">${dy.hex}</span> &nbsp; 色温 ${dy.T}K（${tempDesc(dy.T)}，距本命 ${deltaT>=0?'+':''}${Math.round(deltaT)}K）`;
+      document.documentElement.style.setProperty('--accent',dy.hex);
+      document.documentElement.style.setProperty('--accent-glow',dy.hex+'30');
+    });
+    container.appendChild(dot);
+    if(i<daYun.length-1){const line=document.createElement('div');line.className='timeline-line';container.appendChild(line);}
+  });
+  const currentDy=daYun.find(d=>d.ganzhi===current);
+  if(currentDy){const deltaT=currentDy.T-bc.T;info.innerHTML=`<strong>当前大运 · ${currentDy.period} · ${currentDy.ganzhi}</strong> &nbsp; <span style="font-family:var(--font-mono)">${currentDy.hex}</span> &nbsp; 色温 ${currentDy.T}K（${tempDesc(currentDy.T)}，距本命 ${deltaT>=0?'+':''}${Math.round(deltaT)}K）`;}
+}
+
+function renderComparison(){
+  const grid=document.getElementById('compareGrid');
+  DATA.compare_cases.forEach(c=>{
+    const card=document.createElement('div');card.className='compare-card';
+    const textColor=contrastText(c.birth_color.hex);
+    const isEarth=c.birth_color.H===null;
+    let swatchBg=c.birth_color.hex;
+    if(isEarth) swatchBg='linear-gradient(135deg,#6a5a4a,#b8a898,#d8d0c8)';
+    const order=['木','火','土','金','水'];
+    let barsHtml='<div class="compare-body"><div class="mini-bars">';
+    order.forEach(wx=>{
+      const val=c.wuxing_balance[wx]||0,pct=(val*100).toFixed(1);
+      const color=WX_MAP[wx]?WX_MAP[wx].hex:'#888';
+      barsHtml+=`<div class="mini-bar-row"><span class="mini-bar-label" style="color:${color}">${wx}</span><div class="mini-bar-dot" style="background:${color}"></div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div></div><span style="font-size:0.65rem;font-family:var(--font-mono);color:var(--text-muted);width:38px;text-align:right">${pct}%</span></div>`;
+    });
+    barsHtml+='</div></div>';
+    card.innerHTML=`<div class="compare-card-header"><div class="compare-name">${c.name}</div><div class="compare-dm">日主：${c.day_master}</div></div><div class="compare-swatch" style="background:${swatchBg};color:${isEarth?'#f0e8e0':textColor}">${c.birth_color.hex}</div>${barsHtml}`;
+    grid.appendChild(card);
+  });
+}
+
+function renderFooter(){
+  const footer=document.getElementById('techFooter');
+  const m=DATA.metadata;
+  footer.innerHTML=`<h3>技术参数</h3><div class="tech-grid"><div class="tech-item"><div class="tech-label">H 色相范围</div><div class="tech-value">${m.H_range}</div></div><div class="tech-item"><div class="tech-label">S 饱和度范围</div><div class="tech-value">${m.S_range}</div></div><div class="tech-item"><div class="tech-label">L 明度范围</div><div class="tech-value">${m.L_range}</div></div><div class="tech-item"><div class="tech-label">T 色温范围</div><div class="tech-value">${m.T_range}</div></div><div class="tech-item"><div class="tech-label">引擎</div><div class="tech-value">${DATA.engine}</div></div><div class="tech-item"><div class="tech-label">生成</div><div class="tech-value">${DATA.generated_by}</div></div><div class="tech-item"><div class="tech-label">备注</div><div class="tech-value">${m.note}</div></div><div class="tech-item"><div class="tech-label">前端渲染</div><div class="tech-value">铸象 · 2026-06-10</div></div></div>`;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{renderPillars();renderWuxing();renderStateAxis();renderTimeline();renderComparison();renderFooter();});
+</script>
+</body>
+</html>

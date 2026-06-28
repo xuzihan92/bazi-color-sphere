@@ -1,0 +1,40 @@
+[flake8]
+# 行知阁 Python 代码风格配置
+# 基于 PEP8，针对科学计算/数据处理场景放宽部分规则
+
+max-line-length = 100
+max-complexity = 15
+
+# 排除目录
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    *.egg-info,
+    build,
+    dist,
+    backup*,
+    *backup*,
+    archive*
+
+# 忽略的规则
+# E203: 冒号前空格 (与 black 冲突)
+# W503: 二元操作符前换行 (与 black 冲突)
+# E501: 行过长 (由 black 处理)
+# E402: 模块级导入不在文件顶部 (某些场景需要)
+ignore =
+    E203,
+    W503,
+    E501,
+    E402,
+    E741
+
+# 针对八字色彩等科学计算项目
+per-file-ignores =
+    # 测试文件允许更多灵活性
+    tests/*: D100,D101,D102,D103
+
+# 文档字符串检查 (需要 flake8-docstrings 插件)
+# 八字色彩项目建议启用
+# docstring-convention = google

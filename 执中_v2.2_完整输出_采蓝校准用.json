@@ -1,0 +1,137 @@
+{
+  "engine_version": "v2.2",
+  "json_version": "v1.3（司辰·甄天30/30+存真双审通过）",
+  "subject": "许梓涵 · 壬申 己酉 丁未 丙午 · 男",
+  "day_master": "丁（阴火）",
+  "birth_color": "#7C202F",
+  "birth_hsl": {
+    "h": 350.2,
+    "s": 0.583,
+    "l": 0.309,
+    "t": 4575,
+    "t_unit": "K",
+    "t_note": "引擎T=四柱加权天光色温（非CIExy反算CCT），与采蓝CIELAB CCT≈2456K口径不同"
+  },
+  "pillar_colors": {
+    "year": {
+      "ganzhi": "壬申",
+      "gan": "壬",
+      "zhi": "申",
+      "wuxing": "水",
+      "H": 270,
+      "S": 0.70,
+      "L": 0.20,
+      "T": 5300,
+      "stage": "长生",
+      "wangshuai": "相",
+      "hsl_hex": "#320F56"
+    },
+    "month": {
+      "ganzhi": "己酉",
+      "gan": "己",
+      "zhi": "酉",
+      "wuxing": "土",
+      "H": null,
+      "S": 0.50,
+      "L": 0.20,
+      "T": 6500,
+      "stage": "长生",
+      "wangshuai": "休",
+      "hsl_hex": "#353030"
+    },
+    "day": {
+      "ganzhi": "丁未",
+      "gan": "丁",
+      "zhi": "未",
+      "wuxing": "火",
+      "H": 8,
+      "S": 0.50,
+      "L": 0.36,
+      "T": 3600,
+      "stage": "冠带",
+      "wangshuai": "休",
+      "hsl_hex": "#893A2D"
+    },
+    "hour": {
+      "ganzhi": "丙午",
+      "gan": "丙",
+      "zhi": "午",
+      "wuxing": "火",
+      "H": 0,
+      "S": 0.85,
+      "L": 0.50,
+      "T": 2600,
+      "stage": "帝旺",
+      "wangshuai": "旺",
+      "hsl_hex": "#EB1313"
+    }
+  },
+  "da_yun_colors": [
+    {
+      "ganzhi": "庚戌",
+      "H": 339.0,
+      "S": 0.636,
+      "L": 0.357,
+      "T": 5100,
+      "hsl_hex": "#952149",
+      "intensity": 0.2
+    },
+    {
+      "ganzhi": "辛亥",
+      "H": 330.6,
+      "S": 0.558,
+      "L": 0.300,
+      "T": 5452,
+      "hsl_hex": "#77214B",
+      "intensity": 0.3
+    },
+    {
+      "ganzhi": "壬子",
+      "H": 319.7,
+      "S": 0.690,
+      "L": 0.385,
+      "T": 5865,
+      "hsl_hex": "#A61E79",
+      "intensity": 0.4
+    },
+    {
+      "ganzhi": "癸丑",
+      "H": 306.1,
+      "S": 0.716,
+      "L": 0.335,
+      "T": 5788,
+      "hsl_hex": "#921885",
+      "intensity": 0.5,
+      "note": "当前大运"
+    },
+    {
+      "ganzhi": "甲寅",
+      "H": 55.1,
+      "S": 0.716,
+      "L": 0.380,
+      "T": 4638,
+      "hsl_hex": "#A69A1B",
+      "intensity": 0.5
+    }
+  ],
+  "wuxing_balance": {
+    "木": 0.024,
+    "火": 0.349,
+    "土": 0.303,
+    "金": 0.236,
+    "水": 0.088
+  },
+  "wuxing_balance_note": "天干40%+地支藏干60%加权（本气60%/中气30%/余气10%），含五行归一化",
+  "pillar_weights": {
+    "year": 0.15,
+    "month": 0.30,
+    "day": 0.40,
+    "hour": 0.15
+  },
+  "notes": [
+    "基于司辰 ganzhi_sphere_map_v1.3.json 精确映射（阴干逆行规则修正版）",
+    "H采用圆形加权平均（atan2），解决0°/360°边界",
+    "T=引擎色温(K)，四柱加权天光混合值，非CIELAB CCT",
+    "土天干（己）H=null，不参与色相环，只做明度/饱和度贡献"
+  ]
+}

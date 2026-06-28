@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-八字色彩 · 球体引擎 v2.1 — 司辰六十甲子精确映射版
-版本: v2.1
-作者: 执中（基于司辰 v1.2 JSON 映射表）
-日期: 2026-06-09
+八字色彩 · 球体引擎 v2.2 — 司辰六十甲子精确映射版
+版本: v2.2
+作者: 执中（基于司辰 v1.3 JSON 映射表）
+日期: 2026-06-11
 
 升级说明:
-- v2.0 → v2.1: 集成司辰 ganzhi_sphere_map_v1.2.json
+- v2.1 → v2.2: 数据源从司辰 v1.2 升级到 v1.3
+  v1.3 修复: 阴干十二长生全部按逆行重算（30/60柱L值修正）
+  双审通过: 甄天(规则审核) + 存真(数据校验)
+- v2.0 → v2.1: 集成司辰 ganzhi_sphere_map_v1.2.json（历史版本）
 - 60柱精确查表替换硬编码五行映射
 - H圆形加权平均（atan2）解决0°/360°边界
 - 新增色温T维度输出
@@ -124,12 +127,12 @@ class PillarColor:
 
 
 # ═══════════════════════════════════════════════════════════════
-# 六十甲子精确映射器（司辰 v1.2）
+# 六十甲子精确映射器（司辰 v1.3）
 # ═══════════════════════════════════════════════════════════════
 
 class SichenPillarMapper:
     """
-    六十甲子精确映射器 —— 基于司辰 ganzhi_sphere_map_v1.2.json
+    六十甲子精确映射器 —— 基于司辰 ganzhi_sphere_map_v1.3.json
     
     三种读取方式：
     1. records数组: 直接查60柱完整数据 (P0)
@@ -137,7 +140,7 @@ class SichenPillarMapper:
     3. zhi_layer: 地支配色温基底 (P1)
     """
 
-    # 柱重要性权重（司辰v1.2定义）
+    # 柱重要性权重（司辰v1.3定义）
     PILLAR_WEIGHTS = {
         "year": 0.15,
         "month": 0.30,
@@ -150,7 +153,7 @@ class SichenPillarMapper:
         初始化映射器
         
         Args:
-            json_path: ganzhi_sphere_map_v1.2.json 路径
+            json_path: ganzhi_sphere_map_v1.3.json 路径
                       默认从当前目录或上级目录查找
         """
         self._records_map: Dict[str, dict] = {}
@@ -171,10 +174,10 @@ class SichenPillarMapper:
         # 默认路径搜索
         current_dir = Path(__file__).parent
         paths_to_try.extend([
-            str(current_dir / "ganzhi_sphere_map_v1.2.json"),
-            str(current_dir / ".." / "ganzhi_sphere_map_v1.2.json"),
-            str(current_dir / "八字色彩" / "ganzhi_sphere_map_v1.2.json"),
-            r"E:\AI\U-Claw\data\.openclaw\workspace-team\cards\八字色彩\ganzhi_sphere_map_v1.2.json",
+            str(current_dir / "ganzhi_sphere_map_v1.3.json"),
+            str(current_dir / ".." / "ganzhi_sphere_map_v1.3.json"),
+            str(current_dir / "八字色彩" / "ganzhi_sphere_map_v1.3.json"),
+            r"E:\AI\U-Claw\data\.openclaw\workspace-team\cards\八字色彩\ganzhi_sphere_map_v1.3.json",
         ])
         
         data = None
@@ -188,7 +191,7 @@ class SichenPillarMapper:
         
         if data is None:
             raise FileNotFoundError(
-                "无法找到 ganzhi_sphere_map_v1.2.json，请指定正确路径"
+                "无法找到 ganzhi_sphere_map_v1.3.json，请指定正确路径"
             )
         
         # 加载records（60柱查表）
@@ -336,6 +339,31 @@ class WuxingSphereV21:
     4. 大运/流年静态叠加
     5. 色彩报告生成（JSON）
     """
+
+    # 地支藏干映射（本气/中气/余气）
+    ZHI_CANG_GAN = {
+        "子": [("癸", 1.0)],
+        "丑": [("己", 0.6), ("癸", 0.3), ("辛", 0.1)],
+        "寅": [("甲", 0.6), ("丙", 0.3), ("戊", 0.1)],
+        "卯": [("乙", 1.0)],
+        "辰": [("戊", 0.6), ("乙", 0.3), ("癸", 0.1)],
+        "巳": [("丙", 0.6), ("庚", 0.3), ("戊", 0.1)],
+        "午": [("丁", 0.6), ("己", 0.3)],
+        "未": [("己", 0.6), ("丁", 0.3), ("乙", 0.1)],
+        "申": [("庚", 0.6), ("壬", 0.3), ("戊", 0.1)],
+        "酉": [("辛", 1.0)],
+        "戌": [("戊", 0.6), ("辛", 0.3), ("丁", 0.1)],
+        "亥": [("壬", 0.6), ("甲", 0.4)],
+    }
+
+    # 天干五行
+    GAN_WUXING = {
+        "甲": "木", "乙": "木",
+        "丙": "火", "丁": "火",
+        "戊": "土", "己": "土",
+        "庚": "金", "辛": "金",
+        "壬": "水", "癸": "水"
+    }
 
     def __init__(self, json_path: Optional[str] = None):
         self.mapper = SichenPillarMapper(json_path)
@@ -487,7 +515,7 @@ class WuxingSphereV21:
             "wuxing_balance": wuxing_balance,
             "version": "v2.1",
             "notes": [
-                "基于司辰 ganzhi_sphere_map_v1.2.json 精确映射",
+                "基于司辰 ganzhi_sphere_map_v1.3.json 精确映射",
                 "H采用圆形加权平均（atan2），解决0°/360°边界",
                 "T=色温(K)，反映天光冷暖与季节调性",
                 "权重: 年15% 月30% 日40% 时15%",
@@ -496,14 +524,29 @@ class WuxingSphereV21:
         }
 
     def _estimate_wuxing_balance(self, pillar_colors: Dict) -> Dict[str, float]:
-        """基于四柱五行估算强弱比例"""
+        """
+        基于天干+地支藏干估算五行强弱比例
+        
+        颜色计算已包含藏干影响（通过司辰JSON的L/S/T），
+        此处仅补全五行分布展示层，让统计反映地支藏干贡献。
+        """
         counts = {"木": 0, "火": 0, "土": 0, "金": 0, "水": 0}
         weights = {"year": 0.15, "month": 0.30, "day": 0.40, "hour": 0.15}
         
         for pt, pc in pillar_colors.items():
-            wx = pc.get("wuxing", "土")
             w = weights.get(pt, 0.25)
-            counts[wx] = counts.get(wx, 0) + w
+            
+            # 1. 天干五行
+            gan = pc.get("gan", "")
+            gan_wx = self.GAN_WUXING.get(gan, "土")
+            counts[gan_wx] = counts.get(gan_wx, 0) + w * 0.4  # 天干占40%
+            
+            # 2. 地支藏干五行（本气/中气/余气分层）
+            zhi = pc.get("zhi", "")
+            cang_gan_list = self.ZHI_CANG_GAN.get(zhi, [])
+            for gan_name, gan_weight in cang_gan_list:
+                wx = self.GAN_WUXING.get(gan_name, "土")
+                counts[wx] = counts.get(wx, 0) + w * 0.6 * gan_weight  # 地支占60%，再按藏干分层
         
         total = sum(counts.values())
         if total > 0:
@@ -575,10 +618,15 @@ class SelfTest:
         # 6. 色温T输出
         self._check("色温T有值", birth["T"] > 0, f"T={birth['T']}")
 
-        # 7. 五行平衡归一
+        # 7. 五行平衡归一（含地支藏干）
         report = self.engine.compute_lifetime_color({"birth": bazi})
         self._check("五行平衡归一", 
                     abs(sum(report["wuxing_balance"].values()) - 1.0) < 0.01)
+        
+        # 验证金不为0（梓涵八字申酉藏金）
+        jin_ratio = report["wuxing_balance"].get("金", 0)
+        self._check("地支金权重已计入(金>0)", jin_ratio > 0,
+                    f"金={jin_ratio:.3f}")
 
         # 8. 大运叠加
         dy_color = self.engine.compute_da_yun_color(birth, "甲子", 0.3)

@@ -1,13 +1,16 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-八字色彩 · 球体引擎 v2.1 — 司辰六十甲子精确映射版
-版本: v2.1
-作者: 执中（基于司辰 v1.2 JSON 映射表）
-日期: 2026-06-09
+八字色彩 · 球体引擎 v2.2 — 司辰六十甲子精确映射版
+版本: v2.2
+作者: 执中（基于司辰 v1.3 JSON 映射表）
+日期: 2026-06-11
 
 升级说明:
-- v2.0 → v2.1: 集成司辰 ganzhi_sphere_map_v1.2.json
+- v2.1 → v2.2: 数据源从司辰 v1.2 升级到 v1.3
+  v1.3 修复: 阴干十二长生全部按逆行重算（30/60柱L值修正）
+  双审通过: 甄天(规则审核) + 存真(数据校验)
+- v2.0 → v2.1: 集成司辰 ganzhi_sphere_map_v1.2.json（历史版本）
 - 60柱精确查表替换硬编码五行映射
 - H圆形加权平均（atan2）解决0°/360°边界
 - 新增色温T维度输出
@@ -22,30 +25,27 @@
 - T = 色温(K)，反映天光冷暖与季节调性
 """
 
-import math
 import json
-from dataclasses import dataclass, asdict
-from typing import List, Tuple, Dict, Optional
+import math
+from dataclasses import dataclass
 from pathlib import Path
-
+from typing import Dict, List, Optional, Tuple
 
 # ═══════════════════════════════════════════════════════════════
 # 色彩数据类
 # ═══════════════════════════════════════════════════════════════
 
+
 @dataclass
 class HSL:
     """HSL色彩，H∈[0,360), S∈[0,1], L∈[0,1]"""
+
     h: float
     s: float
     l: float
 
     def clamp(self) -> "HSL":
-        return HSL(
-            h=self.h % 360,
-            s=max(0.0, min(1.0, self.s)),
-            l=max(0.0, min(1.0, self.l))
-        )
+        return HSL(h=self.h % 360, s=max(0.0, min(1.0, self.s)), l=max(0.0, min(1.0, self.l)))
 
     def to_rgb(self) -> Tuple[int, int, int]:
         """HSL -> RGB (0-255)"""
@@ -53,18 +53,25 @@ class HSL:
         if s == 0:
             r = g = b = l
         else:
+
             def hue2rgb(p, q, t):
-                if t < 0: t += 1
-                if t > 1: t -= 1
-                if t < 1/6: return p + (q - p) * 6 * t
-                if t < 1/2: return q
-                if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+                if t < 0:
+                    t += 1
+                if t > 1:
+                    t -= 1
+                if t < 1 / 6:
+                    return p + (q - p) * 6 * t
+                if t < 1 / 2:
+                    return q
+                if t < 2 / 3:
+                    return p + (q - p) * (2 / 3 - t) * 6
                 return p
+
             q = l * (1 + s) if l < 0.5 else l + s - l * s
             p = 2 * l - q
-            r = hue2rgb(p, q, h + 1/3)
+            r = hue2rgb(p, q, h + 1 / 3)
             g = hue2rgb(p, q, h)
-            b = hue2rgb(p, q, h - 1/3)
+            b = hue2rgb(p, q, h - 1 / 3)
         return (int(r * 255), int(g * 255), int(b * 255))
 
     def to_hex(self) -> str:
@@ -82,6 +89,7 @@ class SphereCoord:
     theta = 与中轴夹角（极角）0=北极, π/2=赤道, π=南极
     phi = 黄道面方位角
     """
+
     r: float
     theta: float
     phi: float
@@ -104,16 +112,17 @@ class SphereCoord:
 @dataclass
 class PillarColor:
     """单柱色彩（含四维）"""
+
     ganzhi: str
     gan: str
     zhi: str
     wuxing: str
-    H: Optional[float]   # 色相 (null for 土)
+    H: Optional[float]  # 色相 (null for 土)
     S: float
     L: float
-    T: float             # 色温(K)
-    stage: str           # 十二长生
-    wangshuai: str       # 旺衰状态
+    T: float  # 色温(K)
+    stage: str  # 十二长生
+    wangshuai: str  # 旺衰状态
 
     def to_hsl(self) -> HSL:
         """转HSL（土天干H=null时取中轴灰）"""
@@ -124,78 +133,74 @@ class PillarColor:
 
 
 # ═══════════════════════════════════════════════════════════════
-# 六十甲子精确映射器（司辰 v1.2）
+# 六十甲子精确映射器（司辰 v1.3）
 # ═══════════════════════════════════════════════════════════════
+
 
 class SichenPillarMapper:
     """
-    六十甲子精确映射器 —— 基于司辰 ganzhi_sphere_map_v1.2.json
-    
+    六十甲子精确映射器 —— 基于司辰 ganzhi_sphere_map_v1.3.json
+
     三种读取方式：
     1. records数组: 直接查60柱完整数据 (P0)
     2. gan_layer: 天干色相家族 + delta_T (P1)
     3. zhi_layer: 地支配色温基底 (P1)
     """
 
-    # 柱重要性权重（司辰v1.2定义）
-    PILLAR_WEIGHTS = {
-        "year": 0.15,
-        "month": 0.30,
-        "day": 0.40,
-        "hour": 0.15
-    }
+    # 柱重要性权重（司辰v1.3定义）
+    PILLAR_WEIGHTS = {"year": 0.15, "month": 0.30, "day": 0.40, "hour": 0.15}
 
     def __init__(self, json_path: Optional[str] = None):
         """
         初始化映射器
-        
+
         Args:
-            json_path: ganzhi_sphere_map_v1.2.json 路径
+            json_path: ganzhi_sphere_map_v1.3.json 路径
                       默认从当前目录或上级目录查找
         """
         self._records_map: Dict[str, dict] = {}
         self._gan_layer: Dict[str, dict] = {}
         self._zhi_layer: Dict[str, dict] = {}
         self._pillar_weights: Dict[str, float] = {}
-        
+
         self._load_json(json_path)
 
     def _load_json(self, json_path: Optional[str] = None):
         """加载司辰JSON文件"""
         # 尝试多个可能的路径
         paths_to_try = []
-        
+
         if json_path:
             paths_to_try.append(json_path)
-        
+
         # 默认路径搜索
         current_dir = Path(__file__).parent
-        paths_to_try.extend([
-            str(current_dir / "ganzhi_sphere_map_v1.2.json"),
-            str(current_dir / ".." / "ganzhi_sphere_map_v1.2.json"),
-            str(current_dir / "八字色彩" / "ganzhi_sphere_map_v1.2.json"),
-            r"E:\AI\U-Claw\data\.openclaw\workspace-team\cards\八字色彩\ganzhi_sphere_map_v1.2.json",
-        ])
-        
+        paths_to_try.extend(
+            [
+                str(current_dir / "ganzhi_sphere_map_v1.3.json"),
+                str(current_dir / ".." / "ganzhi_sphere_map_v1.3.json"),
+                str(current_dir / "八字色彩" / "ganzhi_sphere_map_v1.3.json"),
+                r"E:\AI\U-Claw\data\.openclaw\workspace-team\cards\八字色彩\ganzhi_sphere_map_v1.3.json",
+            ]
+        )
+
         data = None
         for p in paths_to_try:
             try:
-                with open(p, 'r', encoding='utf-8') as f:
+                with open(p, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 break
             except (FileNotFoundError, json.JSONDecodeError):
                 continue
-        
+
         if data is None:
-            raise FileNotFoundError(
-                "无法找到 ganzhi_sphere_map_v1.2.json，请指定正确路径"
-            )
-        
+            raise FileNotFoundError("无法找到 ganzhi_sphere_map_v1.3.json，请指定正确路径")
+
         # 加载records（60柱查表）
         for rec in data.get("records", []):
             gz = rec["ganzhi"]
             self._records_map[gz] = rec
-        
+
         # 加载分层（P1/P2预留）
         self._gan_layer = data.get("gan_layer", {})
         self._zhi_layer = data.get("zhi_layer", {})
@@ -204,17 +209,17 @@ class SichenPillarMapper:
     def lookup_pillar(self, ganzhi: str) -> PillarColor:
         """
         查单柱色彩（直接查表）
-        
+
         Args:
             ganzhi: 干支字符串，如"甲子"、"丙午"
-        
+
         Returns:
             PillarColor 对象
         """
         rec = self._records_map.get(ganzhi)
         if not rec:
             raise ValueError(f"未知干支: {ganzhi}，请检查输入")
-        
+
         return PillarColor(
             ganzhi=rec["ganzhi"],
             gan=rec["tiangan"],
@@ -225,13 +230,13 @@ class SichenPillarMapper:
             L=rec["L"],
             T=rec["T"],
             stage=rec["stage"],
-            wangshuai=rec["wangshuai"]
+            wangshuai=rec["wangshuai"],
         )
 
     def lookup_gan_zhi(self, gan: str, zhi: str) -> PillarColor:
         """
         通过天干+地支查表
-        
+
         Args:
             gan: 天干，如"甲"
             zhi: 地支，如"子"
@@ -242,11 +247,11 @@ class SichenPillarMapper:
     def mix_pillars(self, pillars: List[Tuple[str, str, str]]) -> Dict:
         """
         四柱混合（圆形加权平均H + 线性加权平均S/L/T）
-        
+
         Args:
             pillars: [(pillar_type, gan, zhi), ...]
                     pillar_type: year/month/day/hour
-        
+
         Returns:
             {
                 "H": float or None,   # 圆形加权平均色相
@@ -259,57 +264,58 @@ class SichenPillarMapper:
         """
         results = []
         total_weight = 0.0
-        
+
         sum_sin = 0.0
         sum_cos = 0.0
         h_weight_sum = 0.0
-        
+
         sum_s = 0.0
         sum_l = 0.0
         sum_t = 0.0
-        
+
         for ptype, gan, zhi in pillars:
             gz = gan + zhi
             pc = self.lookup_pillar(gz)
             w = self._pillar_weights.get(ptype, 0.25)
-            
-            results.append({
-                "pillar": ptype,
-                "ganzhi": gz,
-                "H": pc.H,
-                "S": pc.S,
-                "L": pc.L,
-                "T": pc.T,
-                "weight": w,
-                "hsl_hex": pc.to_hsl().to_hex()
-            })
-            
+
+            results.append(
+                {
+                    "pillar": ptype,
+                    "ganzhi": gz,
+                    "H": pc.H,
+                    "S": pc.S,
+                    "L": pc.L,
+                    "T": pc.T,
+                    "weight": w,
+                    "hsl_hex": pc.to_hsl().to_hex(),
+                }
+            )
+
             # H: 圆形加权平均（仅H不为null的参与）
             if pc.H is not None:
                 h_rad = math.radians(pc.H)
                 sum_sin += w * math.sin(h_rad)
                 sum_cos += w * math.cos(h_rad)
                 h_weight_sum += w
-            
+
             # S/L/T: 线性加权平均
             sum_s += w * pc.S
             sum_l += w * pc.L
             sum_t += w * pc.T
             total_weight += w
-        
+
         # 计算圆形平均H
         if h_weight_sum > 0:
-            H_avg = math.degrees(math.atan2(sum_sin / h_weight_sum, 
-                                             sum_cos / h_weight_sum))
+            H_avg = math.degrees(math.atan2(sum_sin / h_weight_sum, sum_cos / h_weight_sum))
             H_avg = H_avg % 360
         else:
             H_avg = None  # 全土柱
-        
+
         # 计算线性平均S/L/T
         S_avg = sum_s / total_weight if total_weight > 0 else 0
         L_avg = sum_l / total_weight if total_weight > 0 else 0.5
         T_avg = sum_t / total_weight if total_weight > 0 else 5500
-        
+
         return {
             "H": H_avg,
             "S": round(S_avg, 3),
@@ -317,7 +323,9 @@ class SichenPillarMapper:
             "T": round(T_avg, 0),
             "pillars": results,
             "method": "circular_weighted_H + linear_SLT",
-            "h_contribution": f"{h_weight_sum/total_weight*100:.0f}%" if total_weight > 0 else "0%"
+            "h_contribution": (
+                f"{h_weight_sum / total_weight * 100:.0f}%" if total_weight > 0 else "0%"
+            ),
         }
 
 
@@ -325,10 +333,11 @@ class SichenPillarMapper:
 # 球体引擎 v2.1
 # ═══════════════════════════════════════════════════════════════
 
+
 class WuxingSphereV21:
     """
     八字色彩球体引擎 v2.1 — 司辰六十甲子精确映射版
-    
+
     核心功能:
     1. 四柱 -> 精确查表 (H, S, L, T)
     2. 圆形加权平均计算本命色
@@ -337,6 +346,36 @@ class WuxingSphereV21:
     5. 色彩报告生成（JSON）
     """
 
+    # 地支藏干映射（本气/中气/余气）
+    ZHI_CANG_GAN = {
+        "子": [("癸", 1.0)],
+        "丑": [("己", 0.6), ("癸", 0.3), ("辛", 0.1)],
+        "寅": [("甲", 0.6), ("丙", 0.3), ("戊", 0.1)],
+        "卯": [("乙", 1.0)],
+        "辰": [("戊", 0.6), ("乙", 0.3), ("癸", 0.1)],
+        "巳": [("丙", 0.6), ("庚", 0.3), ("戊", 0.1)],
+        "午": [("丁", 0.6), ("己", 0.3)],
+        "未": [("己", 0.6), ("丁", 0.3), ("乙", 0.1)],
+        "申": [("庚", 0.6), ("壬", 0.3), ("戊", 0.1)],
+        "酉": [("辛", 1.0)],
+        "戌": [("戊", 0.6), ("辛", 0.3), ("丁", 0.1)],
+        "亥": [("壬", 0.6), ("甲", 0.4)],
+    }
+
+    # 天干五行
+    GAN_WUXING = {
+        "甲": "木",
+        "乙": "木",
+        "丙": "火",
+        "丁": "火",
+        "戊": "土",
+        "己": "土",
+        "庚": "金",
+        "辛": "金",
+        "壬": "水",
+        "癸": "水",
+    }
+
     def __init__(self, json_path: Optional[str] = None):
         self.mapper = SichenPillarMapper(json_path)
 
@@ -344,7 +383,7 @@ class WuxingSphereV21:
         """计算单柱色彩（查表）"""
         pc = self.mapper.lookup_gan_zhi(gan, zhi)
         hsl = pc.to_hsl()
-        
+
         return {
             "ganzhi": pc.ganzhi,
             "gan": pc.gan,
@@ -357,13 +396,13 @@ class WuxingSphereV21:
             "stage": pc.stage,
             "wangshuai": pc.wangshuai,
             "hsl_hex": hsl.to_hex(),
-            "hsl": repr(hsl)
+            "hsl": repr(hsl),
         }
 
     def compute_birth_color(self, bazi: Dict) -> Dict:
         """
         计算本命基准色（四柱合并）
-        
+
         bazi格式: {"year": {"gan": "癸", "zhi": "酉"}, ...}
         """
         pillars = []
@@ -371,16 +410,16 @@ class WuxingSphereV21:
             if pt in bazi:
                 p = bazi[pt]
                 pillars.append((pt, p["gan"], p["zhi"]))
-        
+
         mixed = self.mapper.mix_pillars(pillars)
-        
+
         # 生成混合后的HSL
         if mixed["H"] is not None:
             mixed_hsl = HSL(h=mixed["H"], s=mixed["S"], l=mixed["L"]).clamp()
         else:
             # 全土柱：中轴灰
             mixed_hsl = HSL(h=0, s=0.05, l=mixed["L"]).clamp()
-        
+
         return {
             "H": mixed["H"],
             "S": mixed["S"],
@@ -389,45 +428,49 @@ class WuxingSphereV21:
             "hsl_hex": mixed_hsl.to_hex(),
             "hsl": repr(mixed_hsl),
             "pillars": mixed["pillars"],
-            "method": mixed["method"]
+            "method": mixed["method"],
         }
 
-    def compute_da_yun_color(self, birth_color: Dict, da_yun_ganzhi: str,
-                             intensity: float = 0.3) -> Dict:
+    def compute_da_yun_color(
+        self, birth_color: Dict, da_yun_ganzhi: str, intensity: float = 0.3
+    ) -> Dict:
         """
         计算大运叠加色
-        
+
         策略: 大运柱与本命色做加权混合（H圆形混合，S/L/T线性混合）
         intensity: 大运影响强度 (0-1)
         """
         dy = self.mapper.lookup_pillar(da_yun_ganzhi)
-        dy_hsl = dy.to_hsl()
-        
+
         birth_H = birth_color.get("H")
         birth_S = birth_color.get("S", 0)
         birth_L = birth_color.get("L", 0.5)
         birth_T = birth_color.get("T", 5500)
-        
+
         # H: 圆形混合
         if birth_H is not None and dy.H is not None:
             # 两个角度加权混合
             b_rad = math.radians(birth_H)
             d_rad = math.radians(dy.H)
-            sum_sin = (1-intensity) * math.sin(b_rad) + intensity * math.sin(d_rad)
-            sum_cos = (1-intensity) * math.cos(b_rad) + intensity * math.cos(d_rad)
+            sum_sin = (1 - intensity) * math.sin(b_rad) + intensity * math.sin(d_rad)
+            sum_cos = (1 - intensity) * math.cos(b_rad) + intensity * math.cos(d_rad)
             mixed_H = math.degrees(math.atan2(sum_sin, sum_cos)) % 360
         elif dy.H is not None:
             mixed_H = dy.H
         else:
             mixed_H = birth_H
-        
+
         # S/L/T: 线性混合
         mixed_S = birth_S * (1 - intensity) + dy.S * intensity
         mixed_L = birth_L * (1 - intensity) + dy.L * intensity
         mixed_T = birth_T * (1 - intensity) + dy.T * intensity
-        
-        mixed_hsl = HSL(h=mixed_H or 0, s=mixed_S, l=mixed_L).clamp() if mixed_H is not None else HSL(h=0, s=0.05, l=mixed_L).clamp()
-        
+
+        mixed_hsl = (
+            HSL(h=mixed_H or 0, s=mixed_S, l=mixed_L).clamp()
+            if mixed_H is not None
+            else HSL(h=0, s=0.05, l=mixed_L).clamp()
+        )
+
         return {
             "ganzhi": da_yun_ganzhi,
             "H": mixed_H,
@@ -436,13 +479,13 @@ class WuxingSphereV21:
             "T": round(mixed_T, 0),
             "hsl_hex": mixed_hsl.to_hex(),
             "hsl": repr(mixed_hsl),
-            "intensity": intensity
+            "intensity": intensity,
         }
 
     def compute_lifetime_color(self, bazi_data: Dict) -> Dict:
         """
         计算完整生命周期色彩报告
-        
+
         bazi_data格式:
         {
             "birth": {"year": {"gan": "癸", "zhi": "酉"}, ...},
@@ -452,7 +495,6 @@ class WuxingSphereV21:
         """
         birth = bazi_data.get("birth", {})
         da_yun_list = bazi_data.get("da_yun", [])
-        liu_nian_list = bazi_data.get("liu_nian", [])
 
         # 本命基准色
         birth_color = self.compute_birth_color(birth)
@@ -480,31 +522,46 @@ class WuxingSphereV21:
                 "h": round(birth_color["H"], 1) if birth_color["H"] else None,
                 "s": birth_color["S"],
                 "l": birth_color["L"],
-                "t": birth_color["T"]
+                "t": birth_color["T"],
             },
             "pillar_colors": pillar_colors,
             "da_yun_colors": da_yun_colors,
             "wuxing_balance": wuxing_balance,
             "version": "v2.1",
             "notes": [
-                "基于司辰 ganzhi_sphere_map_v1.2.json 精确映射",
+                "基于司辰 ganzhi_sphere_map_v1.3.json 精确映射",
                 "H采用圆形加权平均（atan2），解决0°/360°边界",
                 "T=色温(K)，反映天光冷暖与季节调性",
                 "权重: 年15% 月30% 日40% 时15%",
-                "土天干H=null，不参与色相环，只做明度/饱和度贡献"
-            ]
+                "土天干H=null，不参与色相环，只做明度/饱和度贡献",
+            ],
         }
 
     def _estimate_wuxing_balance(self, pillar_colors: Dict) -> Dict[str, float]:
-        """基于四柱五行估算强弱比例"""
+        """
+        基于天干+地支藏干估算五行强弱比例
+
+        颜色计算已包含藏干影响（通过司辰JSON的L/S/T），
+        此处仅补全五行分布展示层，让统计反映地支藏干贡献。
+        """
         counts = {"木": 0, "火": 0, "土": 0, "金": 0, "水": 0}
         weights = {"year": 0.15, "month": 0.30, "day": 0.40, "hour": 0.15}
-        
+
         for pt, pc in pillar_colors.items():
-            wx = pc.get("wuxing", "土")
             w = weights.get(pt, 0.25)
-            counts[wx] = counts.get(wx, 0) + w
-        
+
+            # 1. 天干五行
+            gan = pc.get("gan", "")
+            gan_wx = self.GAN_WUXING.get(gan, "土")
+            counts[gan_wx] = counts.get(gan_wx, 0) + w * 0.4  # 天干占40%
+
+            # 2. 地支藏干五行（本气/中气/余气分层）
+            zhi = pc.get("zhi", "")
+            cang_gan_list = self.ZHI_CANG_GAN.get(zhi, [])
+            for gan_name, gan_weight in cang_gan_list:
+                wx = self.GAN_WUXING.get(gan_name, "土")
+                counts[wx] = counts.get(wx, 0) + w * 0.6 * gan_weight  # 地支占60%，再按藏干分层
+
         total = sum(counts.values())
         if total > 0:
             return {k: round(v / total, 3) for k, v in counts.items()}
@@ -514,6 +571,7 @@ class WuxingSphereV21:
 # ═══════════════════════════════════════════════════════════════
 # 自检系统 v2.1
 # ═══════════════════════════════════════════════════════════════
+
 
 class SelfTest:
     """v2.1引擎自检（基于司辰JSON验证）"""
@@ -537,13 +595,16 @@ class SelfTest:
         print("=" * 60)
 
         # 1. JSON加载验证
-        self._check("JSON加载成功", len(self.engine.mapper._records_map) == 60,
-                    f"records={len(self.engine.mapper._records_map)}")
+        self._check(
+            "JSON加载成功",
+            len(self.engine.mapper._records_map) == 60,
+            f"records={len(self.engine.mapper._records_map)}",
+        )
 
         # 2. 单柱查表：火=红
         pc = self.engine.mapper.lookup_pillar("丙午")
         self._check("丙午 H=0°(红)", pc.H == 0, f"H={pc.H}")
-        
+
         pc2 = self.engine.mapper.lookup_pillar("丁未")
         self._check("丁未 H=8°(偏红)", pc2.H == 8, f"H={pc2.H}")
 
@@ -560,25 +621,26 @@ class SelfTest:
             "year": {"gan": "壬", "zhi": "申"},
             "month": {"gan": "己", "zhi": "酉"},
             "day": {"gan": "丁", "zhi": "未"},
-            "hour": {"gan": "丙", "zhi": "午"}
+            "hour": {"gan": "丙", "zhi": "午"},
         }
         birth = self.engine.compute_birth_color(bazi)
-        self._check("本命色计算成功", birth["H"] is not None,
-                    f"H={birth['H']}")
-        
+        self._check("本命色计算成功", birth["H"] is not None, f"H={birth['H']}")
+
         # 验证火属性主导（H应在红色区间 0°-45° 或 315°-360°）
         h_val = birth["H"]
         is_red_zone = (0 <= h_val <= 45) or (315 <= h_val <= 360)
-        self._check("梓涵八字主色调偏红(火)", is_red_zone,
-                    f"H={h_val:.1f}°")
+        self._check("梓涵八字主色调偏红(火)", is_red_zone, f"H={h_val:.1f}°")
 
         # 6. 色温T输出
         self._check("色温T有值", birth["T"] > 0, f"T={birth['T']}")
 
-        # 7. 五行平衡归一
+        # 7. 五行平衡归一（含地支藏干）
         report = self.engine.compute_lifetime_color({"birth": bazi})
-        self._check("五行平衡归一", 
-                    abs(sum(report["wuxing_balance"].values()) - 1.0) < 0.01)
+        self._check("五行平衡归一", abs(sum(report["wuxing_balance"].values()) - 1.0) < 0.01)
+
+        # 验证金不为0（梓涵八字申酉藏金）
+        jin_ratio = report["wuxing_balance"].get("金", 0)
+        self._check("地支金权重已计入(金>0)", jin_ratio > 0, f"金={jin_ratio:.3f}")
 
         # 8. 大运叠加
         dy_color = self.engine.compute_da_yun_color(birth, "甲子", 0.3)
@@ -587,7 +649,7 @@ class SelfTest:
         # 9. 边界测试：0°/360°圆形平均
         # 350°和10°的平均应为0°，不是180°
         test_pillars = [
-            ("year", "癸", "酉"),   # H=262°
+            ("year", "癸", "酉"),  # H=262°
             ("month", "丙", "午"),  # H=0°
         ]
         mixed = self.engine.mapper.mix_pillars(test_pillars)
@@ -631,21 +693,21 @@ if __name__ == "__main__":
                 "year": {"gan": "壬", "zhi": "申"},
                 "month": {"gan": "己", "zhi": "酉"},
                 "day": {"gan": "丁", "zhi": "未"},
-                "hour": {"gan": "丙", "zhi": "午"}
+                "hour": {"gan": "丙", "zhi": "午"},
             },
             "da_yun": ["庚戌", "辛亥", "壬子", "癸丑", "甲寅"],
-            "liu_nian": [2026, 2027, 2028, 2029, 2030]
+            "liu_nian": [2026, 2027, 2028, 2029, 2030],
         }
 
         report = engine.compute_lifetime_color(xuzihan_bazi)
         print(json.dumps(report, ensure_ascii=False, indent=2))
-        
+
         print("\n" + "=" * 60)
         print("对比 v2.0 vs v2.1")
         print("=" * 60)
-        print(f"v2.0 旧引擎: H≈86.5° (偏绿，BUG)")
+        print("v2.0 旧引擎: H≈86.5° (偏绿，BUG)")
         print(f"v2.1 新引擎: H={report['birth_hsl']['h']:.1f}° (应偏红，火属性)")
         print(f"色温T: {report['birth_hsl']['t']:.0f}K")
-        
+
     else:
         print("\n✗ 自检有失败项，请修复后重试。")

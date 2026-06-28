@@ -1,0 +1,406 @@
+{
+  "version": "v2.1",
+  "engine": "WuxingSphereV2.1 + ganzhi_sphere_map_v1.2.json",
+  "generated_by": "执中",
+  "main_case": {
+    "name": "梓涵",
+    "bazi": "壬申 · 己酉 · 丁未 · 丙午",
+    "day_master": "丁火",
+    "birth_color": {
+      "hex": "#CF495F",
+      "H": 350.2,
+      "S": 0.583,
+      "L": 0.55,
+      "T": 4575.0
+    },
+    "pillars": {
+      "year": {
+        "ganzhi": "壬申",
+        "gan": "壬",
+        "zhi": "申",
+        "wuxing": "水",
+        "H": 270,
+        "S": 0.7,
+        "L": 0.2,
+        "T": 5300,
+        "hex": "#320F56",
+        "stage": "长生",
+        "wangshuai": "相"
+      },
+      "month": {
+        "ganzhi": "己酉",
+        "gan": "己",
+        "zhi": "酉",
+        "wuxing": "土",
+        "H": null,
+        "S": 0.5,
+        "L": 0.75,
+        "T": 6500,
+        "hex": "#C2BCBC",
+        "stage": "死",
+        "wangshuai": "休"
+      },
+      "day": {
+        "ganzhi": "丁未",
+        "gan": "丁",
+        "zhi": "未",
+        "wuxing": "火",
+        "H": 8,
+        "S": 0.5,
+        "L": 0.55,
+        "T": 3600,
+        "hex": "#C56252",
+        "stage": "衰",
+        "wangshuai": "休"
+      },
+      "hour": {
+        "ganzhi": "丙午",
+        "gan": "丙",
+        "zhi": "午",
+        "wuxing": "火",
+        "H": 0,
+        "S": 0.85,
+        "L": 0.5,
+        "T": 2600,
+        "hex": "#EB1313",
+        "stage": "帝旺",
+        "wangshuai": "旺"
+      }
+    },
+    "wuxing_balance": {
+      "木": 0.024,
+      "火": 0.349,
+      "土": 0.303,
+      "金": 0.236,
+      "水": 0.088
+    },
+    "da_yun": [
+      {
+        "ganzhi": "庚戌",
+        "period": "第1运",
+        "intensity": 0.2,
+        "H": 339.0,
+        "S": 0.636,
+        "L": 0.55,
+        "T": 5100.0,
+        "hex": "#D54376"
+      },
+      {
+        "ganzhi": "辛亥",
+        "period": "第2运",
+        "intensity": 0.2,
+        "H": 340.7,
+        "S": 0.566,
+        "L": 0.57,
+        "T": 5160.0,
+        "hex": "#CF537B"
+      },
+      {
+        "ganzhi": "壬子",
+        "period": "第3运",
+        "intensity": 0.3,
+        "H": 328.7,
+        "S": 0.663,
+        "L": 0.535,
+        "T": 5542.0,
+        "hex": "#D7398B"
+      },
+      {
+        "ganzhi": "癸丑",
+        "period": "第4运",
+        "intensity": 0.3,
+        "H": 327.3,
+        "S": 0.663,
+        "L": 0.55,
+        "T": 5302.0,
+        "hex": "#D84093"
+      },
+      {
+        "ganzhi": "甲寅",
+        "period": "第5运",
+        "intensity": 0.3,
+        "H": 14.6,
+        "S": 0.663,
+        "L": 0.52,
+        "T": 4612.0,
+        "hex": "#D55A33"
+      },
+      {
+        "ganzhi": "乙卯",
+        "period": "第6运",
+        "intensity": 0.25,
+        "H": 6.8,
+        "S": 0.65,
+        "L": 0.538,
+        "T": 4681.0,
+        "hex": "#D54D3C"
+      },
+      {
+        "ganzhi": "丙辰",
+        "period": "第7运",
+        "intensity": 0.25,
+        "H": 352.6,
+        "S": 0.562,
+        "L": 0.503,
+        "T": 4706.0,
+        "hex": "#C7384A"
+      },
+      {
+        "ganzhi": "丁巳",
+        "period": "第8运",
+        "intensity": 0.25,
+        "H": 354.6,
+        "S": 0.65,
+        "L": 0.538,
+        "T": 4256.0,
+        "hex": "#D53C4A"
+      },
+      {
+        "ganzhi": "戊午",
+        "period": "第9运",
+        "intensity": 0.25,
+        "H": 350.2,
+        "S": 0.65,
+        "L": 0.538,
+        "T": 4181.0,
+        "hex": "#D53C55"
+      },
+      {
+        "ganzhi": "己未",
+        "period": "第10运",
+        "intensity": 0.25,
+        "H": 350.2,
+        "S": 0.65,
+        "L": 0.503,
+        "T": 4381.0,
+        "hex": "#D22D48"
+      }
+    ],
+    "current_da_yun": "癸丑"
+  },
+  "compare_cases": [
+    {
+      "name": "强木",
+      "day_master": "甲木",
+      "birth_color": {
+        "hex": "#16C91D",
+        "H": 122.4,
+        "S": 0.797,
+        "L": 0.44,
+        "T": 5315.0
+      },
+      "pillars": {
+        "year": {
+          "ganzhi": "甲寅",
+          "gan": "甲",
+          "zhi": "寅",
+          "wuxing": "木",
+          "H": 120,
+          "S": 0.85,
+          "L": 0.45,
+          "T": 4700,
+          "hex": "#11D411",
+          "stage": "临官",
+          "wangshuai": "旺"
+        },
+        "month": {
+          "ganzhi": "乙卯",
+          "gan": "乙",
+          "zhi": "卯",
+          "wuxing": "木",
+          "H": 128,
+          "S": 0.85,
+          "L": 0.5,
+          "T": 5000,
+          "hex": "#13EB30",
+          "stage": "帝旺",
+          "wangshuai": "旺"
+        },
+        "day": {
+          "ganzhi": "甲寅",
+          "gan": "甲",
+          "zhi": "寅",
+          "wuxing": "木",
+          "H": 120,
+          "S": 0.85,
+          "L": 0.45,
+          "T": 4700,
+          "hex": "#11D411",
+          "stage": "临官",
+          "wangshuai": "旺"
+        },
+        "hour": {
+          "ganzhi": "甲子",
+          "gan": "甲",
+          "zhi": "子",
+          "wuxing": "木",
+          "H": 120,
+          "S": 0.5,
+          "L": 0.28,
+          "T": 8200,
+          "hex": "#236B23",
+          "stage": "沐浴",
+          "wangshuai": "休"
+        }
+      },
+      "wuxing_balance": {
+        "木": 0.778,
+        "火": 0.099,
+        "土": 0.033,
+        "金": 0.0,
+        "水": 0.09
+      }
+    },
+    {
+      "name": "强水",
+      "day_master": "壬水",
+      "birth_color": {
+        "hex": "#6223E6",
+        "H": 259.5,
+        "S": 0.797,
+        "L": 0.522,
+        "T": 7770.0
+      },
+      "pillars": {
+        "year": {
+          "ganzhi": "壬子",
+          "gan": "壬",
+          "zhi": "子",
+          "wuxing": "水",
+          "H": 270,
+          "S": 0.85,
+          "L": 0.5,
+          "T": 7800,
+          "hex": "#7F13EB",
+          "stage": "帝旺",
+          "wangshuai": "旺"
+        },
+        "month": {
+          "ganzhi": "癸亥",
+          "gan": "癸",
+          "zhi": "亥",
+          "wuxing": "水",
+          "H": 262,
+          "S": 0.85,
+          "L": 0.45,
+          "T": 7500,
+          "hex": "#5811D4",
+          "stage": "临官",
+          "wangshuai": "旺"
+        },
+        "day": {
+          "ganzhi": "壬子",
+          "gan": "壬",
+          "zhi": "子",
+          "wuxing": "水",
+          "H": 270,
+          "S": 0.85,
+          "L": 0.5,
+          "T": 7800,
+          "hex": "#7F13EB",
+          "stage": "帝旺",
+          "wangshuai": "旺"
+        },
+        "hour": {
+          "ganzhi": "庚子",
+          "gan": "庚",
+          "zhi": "子",
+          "wuxing": "金",
+          "H": 210,
+          "S": 0.5,
+          "L": 0.75,
+          "T": 8200,
+          "hex": "#9FBFDF",
+          "stage": "死",
+          "wangshuai": "休"
+        }
+      },
+      "wuxing_balance": {
+        "木": 0.072,
+        "火": 0.0,
+        "土": 0.0,
+        "金": 0.06,
+        "水": 0.868
+      }
+    },
+    {
+      "name": "土旺",
+      "day_master": "戊土",
+      "birth_color": {
+        "hex": "#E51D1D",
+        "H": null,
+        "S": 0.797,
+        "L": 0.507,
+        "T": 5890.0
+      },
+      "pillars": {
+        "year": {
+          "ganzhi": "戊辰",
+          "gan": "戊",
+          "zhi": "辰",
+          "wuxing": "土",
+          "H": null,
+          "S": 0.85,
+          "L": 0.36,
+          "T": 5500,
+          "hex": "#605757",
+          "stage": "冠带",
+          "wangshuai": "旺"
+        },
+        "month": {
+          "ganzhi": "己丑",
+          "gan": "己",
+          "zhi": "丑",
+          "wuxing": "土",
+          "H": null,
+          "S": 0.85,
+          "L": 0.85,
+          "T": 7000,
+          "hex": "#DAD6D6",
+          "stage": "墓",
+          "wangshuai": "旺"
+        },
+        "day": {
+          "ganzhi": "戊辰",
+          "gan": "戊",
+          "zhi": "辰",
+          "wuxing": "土",
+          "H": null,
+          "S": 0.85,
+          "L": 0.36,
+          "T": 5500,
+          "hex": "#605757",
+          "stage": "冠带",
+          "wangshuai": "旺"
+        },
+        "hour": {
+          "ganzhi": "丙辰",
+          "gan": "丙",
+          "zhi": "辰",
+          "wuxing": "火",
+          "H": 0,
+          "S": 0.5,
+          "L": 0.36,
+          "T": 5100,
+          "hex": "#892D2D",
+          "stage": "冠带",
+          "wangshuai": "休"
+        }
+      },
+      "wuxing_balance": {
+        "木": 0.126,
+        "火": 0.06,
+        "土": 0.7,
+        "金": 0.018,
+        "水": 0.096
+      }
+    }
+  ],
+  "metadata": {
+    "H_range": "0°-360° (circular)",
+    "S_range": "0.15-0.85",
+    "L_range": "0.10-0.95",
+    "T_range": "2600K-8200K",
+    "note": "土天干H=null，不参与色相环"
+  }
+}
